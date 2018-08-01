@@ -1,0 +1,3 @@
+rootProject.name = 'vtrack'
+
+include ':app'
