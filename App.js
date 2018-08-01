@@ -15,6 +15,7 @@ import {
 import { StackNavigator } from 'react-navigation';
 import SignIn from './src/views/SignIn';
 import Home from './src/views/Home';
+import CustomMap from './src/views/CustomMap';
 
 
 var firebase = require('firebase')
@@ -38,11 +39,13 @@ const RootStack = StackNavigator(
       screen: Home
     },
 
+    map: CustomMap
+
 
   }
   ,
   {
-    initialRouteName: 'login',
+    initialRouteName: 'map',
     // the shared navigationOptions, which we can always override within the component
     navigationOptions: {
       headerStyle: {
