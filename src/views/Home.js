@@ -7,10 +7,19 @@ import CustomMap from './CustomMap.js';
 
 const glu = require('../components/geolocation-utils.js');
 
+var initialPosition;
 var currentLatitude;
 var currentLongitude;
 var currentLocation;
 var your_location;
+
+function setInitialPosition() {
+  if (currentLatitude) {
+    return null;
+  }
+
+  return { initialPosition };
+}
 
 class Home extends Component {
   constructor(props) {
@@ -31,9 +40,8 @@ class Home extends Component {
 			position => {
 			  var JSONData = JSON.stringify(position);
 			  var ParsedData = JSON.parse(JSONData);
-			  const initialPosition = ParsedData.coords.latitude;
-			  
-			  this.setState({ initialPosition });
+        initialPosition = ParsedData.coords.latitude;
+        this.setState({ setInitialPosition });
 			},
 			error => alert(error.message),
 			{
@@ -51,23 +59,11 @@ class Home extends Component {
       currentLongitude = ParsedData.coords.longitude;
       currentLocation = {lat: currentLatitude, lon: currentLongitude};
       your_location = {currentLatitude, currentLongitude, currentLocation};
-      //return your_location
-		  
-	  
-			// this.setState({
-			//   currentLatitude: currentLatitude,
-			//   currentLongitude: currentLongitude,
-			//   currentLocation: {lat: currentLatitude, lon: currentLongitude},
-			//   isLoading: false
-			// });
       
-      //this.updateFirebase(this.props.uid, )
+      this.updateFirebase(this.props.uid, currentLocation);
 	  
       });
       
-		this.setState({
-		  currentTime: new Date()
-		});
 	  }
 
 
@@ -79,7 +75,7 @@ class Home extends Component {
 			() => this.tick(),
 			10000
       ); 
-      //In this case, simply increment the clock every 10 seconds
+      //In this case, simply increment the clock every 30 seconds
 		
   }
   
@@ -90,12 +86,11 @@ class Home extends Component {
 
   confirmArrival(uid, data, currentLocation) {
     // if youve made it, then update 'done' to true
-    var coords = data.coords;
-    var radius = 30;
+    var radius = 50;
     var condition;
     var location;
     var locationsReached = 0;
-    for(let coord of coords) {
+    for(let coord of data.coords) {
       location = {lat: coord.lat, lon: coord.lng};
       condition = glu.insideCircle(currentLocation, location, radius);
       if(condition) {
@@ -105,9 +100,12 @@ class Home extends Component {
       }
       
     }
-    
-    if(locationsReached == coords.length) {
-      Object.assign( {routeFinished: true, timeFinished: new Date()}, data)
+    console.log(data.coords);
+    if(locationsReached == data.coords.length) {
+      data.routeFinished = true;
+      data.timeFinished = new Date();
+      // Object.assign( {routeFinished: true, timeFinished: new Date()}, data)
+      console.log(data);
       this.updateFirebase(uid, data);
     }
 
@@ -119,7 +117,7 @@ class Home extends Component {
   updateFirebase(uid, data) {
     
     var updates = {};
-    updates['/Drivers/' + uid + '/'] = data;
+    updates['/Drivers/' + uid + '/currentLocation' + '/'] = data;
 
     return firebase.database().ref().update(updates);
 
@@ -135,7 +133,7 @@ class Home extends Component {
   }
 
   render() {
-
+    console.log(this.props.data)
     var destinations = this.generateDestinations(this.props.data.coords);
 
     return (

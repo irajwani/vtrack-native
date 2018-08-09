@@ -19,8 +19,8 @@ export default class CustomMap extends Component {
 					provider={PROVIDER_GOOGLE}
 					style={styles.map}
                     region={{
-                            latitude: 24.8149,
-                            longitude: 67.0616,
+                            latitude: this.props.location.latitude,
+                            longitude: this.props.location.longitude,
                             latitudeDelta: 0.015,
                             longitudeDelta: 0.0121,
                             }}

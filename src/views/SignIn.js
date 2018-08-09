@@ -85,10 +85,6 @@ class SignIn extends Component {
                   }
 
 
-      
-
-
-
     renderButtonOrLoading() {
         if (this.state.loading) {
             return <View style={{flex: 1}}>
