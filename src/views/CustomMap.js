@@ -5,6 +5,10 @@ import { Marker, Callout } from 'react-native-maps';
 
 
 export default class CustomMap extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
   render() {
     return (
         <View style ={styles.container}>
@@ -15,13 +19,26 @@ export default class CustomMap extends Component {
 					provider={PROVIDER_GOOGLE}
 					style={styles.map}
                     region={{
-                            latitude: 37.78825,
-                            longitude: -122.4324,
+                            latitude: 24.8149,
+                            longitude: 67.0616,
                             latitudeDelta: 0.015,
                             longitudeDelta: 0.0121,
                             }}
         >
-        
+          <Marker
+            coordinate={this.props.location}
+            title={"This is You"}
+            image={require('../resources/images/you.png')}
+          />
+          {this.props.destinations.map( 
+            marker => (
+              <Marker
+                coordinate={marker.latlng}
+                title={"Destination"}
+              />
+            )
+
+          )}
         </MapView>
       </View>
     )
@@ -31,8 +48,8 @@ export default class CustomMap extends Component {
 const styles = StyleSheet.create({
     container: {
         ...StyleSheet.absoluteFillObject,
-        height: 400,
-        width: 400,
+        height: 300,
+        width: 300,
         justifyContent: 'flex-end',
         alignItems: 'center',
       },

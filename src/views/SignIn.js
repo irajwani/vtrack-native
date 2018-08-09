@@ -13,7 +13,7 @@ class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { data: { imad: {age: 22, height: 510}, k: {age: 22, height: 510}}, test: 3, email: '', uid: '', pass: '', error: '', loading: false, loggedIn: false, isGetting: true};
+      this.state = { data: '', test: 3, email: '', uid: '', pass: '', error: '', loading: false, loggedIn: false, isGetting: true};
       }
     /////////
     ///////// Hello world for Login/Signup Email Authentication

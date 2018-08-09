@@ -45,7 +45,7 @@ const RootStack = StackNavigator(
   }
   ,
   {
-    initialRouteName: 'map',
+    initialRouteName: 'login',
     // the shared navigationOptions, which we can always override within the component
     navigationOptions: {
       headerStyle: {
