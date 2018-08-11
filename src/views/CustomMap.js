@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View } from 'react-native'
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Marker, Callout } from 'react-native-maps';
-
+//gmaps API key: "AIzaSyD2zYVyRTyNemGQtnrjsZnGGrR7R0knzMg"
 
 export default class CustomMap extends Component {
   constructor(props) {
