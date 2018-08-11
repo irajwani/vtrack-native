@@ -15,6 +15,7 @@
     "react-native-firebase": "^4.3.8",
     "react-native-indicators": "^0.13.0",
     "react-native-maps": "^0.21.0",
+    "react-native-maps-directions": "^1.6.0",
     "react-native-textinput-effects": "^0.4.2",
     "react-navigation": "^2.9.3"
   },
