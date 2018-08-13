@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, Button } from 'react-native'
 import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase.js';
-
 import CustomMap from './CustomMap.js';
 
 const glu = require('../components/geolocation-utils.js');
@@ -31,6 +30,7 @@ class Home extends Component {
         currentLongitude: 'unknown',
         currentLocation: {lat: 25, lon: 25},
         data: '',
+        buttonEnabled: true,
       }
 
   }
@@ -60,7 +60,7 @@ class Home extends Component {
       currentLocation = {lat: currentLatitude, lon: currentLongitude};
       your_location = {currentLatitude, currentLongitude, currentLocation};
       
-      this.updateFirebase(this.props.uid, currentLocation);
+      this.updateFirebaseCurrentLocation(this.props.uid, currentLocation);
 	  
       });
       
@@ -73,7 +73,7 @@ class Home extends Component {
 	
 	 this.timerID = setInterval(
 			() => this.tick(),
-			10000
+			40000
       ); 
       //In this case, simply increment the clock every 30 seconds
 		
@@ -84,27 +84,39 @@ class Home extends Component {
 		//clearInterval(this.timerID);
   };
 
+  diff_minutes(dt2, dt1) {
+
+  var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+  diff /= 60;
+  return Math.abs(Math.round(diff));
+  
+  }
+
+  startTimer() {
+    this.setState( {timeStarted: new Date(), buttonEnabled: false} )
+  }
+
   confirmArrival(uid, data, currentLocation) {
     // if youve made it, then update 'done' to true
-    var radius = 50;
+    var radius = 100;
     var condition;
     var location;
     var locationsReached = 0;
-    for(let coord of data.coords) {
+    for(let coord of data.coordinates) {
       location = {lat: coord.lat, lon: coord.lng};
       condition = glu.insideCircle(currentLocation, location, radius);
       if(condition) {
         coord.done = true;
         locationsReached++;
-        //this.updateFirebase(uid, data);
+        this.updateFirebase(uid, data);
       }
       
     }
-    console.log(data.coords);
-    if(locationsReached == data.coords.length) {
+    console.log(data.coordinates);
+    if(locationsReached == data.coordinates.length) {
       data.routeFinished = true;
       data.timeFinished = new Date();
-      // Object.assign( {routeFinished: true, timeFinished: new Date()}, data)
+      data.timeOfJourney = this.diff_minutes( data.timeFinished, this.state.timeStarted );
       console.log(data);
       this.updateFirebase(uid, data);
     }
@@ -115,6 +127,15 @@ class Home extends Component {
   }
 
   updateFirebase(uid, data) {
+    
+    var updates = {};
+    updates['/Drivers/' + uid + '/'] = data;
+
+    return firebase.database().ref().update(updates);
+
+  }
+
+  updateFirebaseCurrentLocation(uid, data) {
     
     var updates = {};
     updates['/Drivers/' + uid + '/currentLocation' + '/'] = data;
@@ -134,7 +155,7 @@ class Home extends Component {
 
   render() {
     console.log(this.props.data)
-    var destinations = this.generateDestinations(this.props.data.coords);
+    var destinations = this.generateDestinations(this.props.data.coordinates);
 
     return (
       <View>
@@ -147,6 +168,10 @@ class Home extends Component {
          />
 
         <Button title="Verify arrival" onPress={ () => {this.confirmArrival(this.props.uid, this.props.data, currentLocation); } } />
+        <Button 
+          title="Begin Journey" 
+          onPress={ () => {this.startTimer();} } 
+          disabled={this.state.buttonEnabled ? false : true} />
 
       </View>
     )

@@ -50,7 +50,7 @@ class SignIn extends Component {
             time: new Date()
         };
         
-        data.coords = snapshot.val().coordinates
+        data.coordinates = snapshot.val().coordinates
         data.time = snapshot.val().time
         
         this.setState({data, isGetting: false});
