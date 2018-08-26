@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, Platform } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import {ButtonGroup, Button} from 'react-native-elements';
-import { Sae, Fumi } from 'react-native-textinput-effects';
+import { Jiro } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import RNFetchBlob from 'react-native-fetch-blob';
 import AddButton from '../components/AddButton';
@@ -20,9 +20,9 @@ class EditProfile extends Component {
       }
   }
 
-  updateFirebase(uid, data, mime = 'image/jpg') {
+  updateFirebase = (uid, data, uri, mime = 'image/jpg') => {
     var updates = {};
-    
+    console.log(uri);
 
     updates['/Drivers/' + uid + '/profile/'] = data;
 
@@ -30,7 +30,7 @@ class EditProfile extends Component {
             storage: new Promise((resolve, reject) => {
                         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
                         let uploadBlob = null
-                        const imageRef = firebase.storage().ref().child(`Users/${uid}`);
+                        const imageRef = firebase.storage().ref().child(`Drivers/${uid}/`);
                         fs.readFile(uploadUri, 'base64')
                         .then((data) => {
                         return Blob.build(data, { type: `${mime};BASE64` })
@@ -54,23 +54,33 @@ class EditProfile extends Component {
 }
   }
   render() {
+    console.log('Editing Profile..')
     const uid = firebase.auth().currentUser.uid;
+    const {params} = this.props.navigation.state
+    const pictureuri = params ? params.uri : 'nothing here'
+    const picturebase64 = params ? params.base64 : 'nothing here'
+
     return (
       <View>
-        <Sae
-            label={'FirstName LastName'}
-            value={this.state.name}
-            onChangeText={name => this.setState({ name })}
-            autoCorrect={false}
-            inputStyle={{ color: '#0a3f93' }}
-        />
-
+        <Jiro
+                    label={'FirstName LastName'}
+                    value={this.state.name}
+                    onChangeText={name => this.setState({ name })}
+                    autoCorrect={false}
+                    // this is used as active border color
+                    borderColor={'#800000'}
+                    // this is used to set backgroundColor of label mask.
+                    // please pass the backgroundColor of your TextInput container.
+                    backgroundColor={'#F9F7F6'}
+                    inputStyle={{ color: '#800000' }}
+            />
+        <AddButton/>
         
 
         <Button
             large
             title='SAVE'
-            onPress={() => this.updateFirebase(uid, this.state.name, pictureuri, mime = 'image/jpg')} 
+            onPress={() => this.updateFirebase(uid, this.state, pictureuri, mime = 'image/jpg')} 
         />
         
       </View>

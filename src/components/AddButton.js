@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Text, View } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
-import MyCustomCamera from './Camera.js'
 import { withNavigation } from 'react-navigation';
 
 class AddButton extends Component {
@@ -28,7 +27,7 @@ class AddButton extends Component {
 
   launchCamera() {
     console.log('launching camera');
-    this.props.navigation.navigate('Camera')
+    this.props.navigation.navigate('camera')
     //<MyCustomCamera />
     
   }
@@ -42,7 +41,7 @@ class AddButton extends Component {
     return (
       <View>
         <Icon.Button name='plus' onPress={() => this.showActionSheet() }>
-          <Text>Add Picture of Item</Text>
+          <Text>Add or Change Profile Picture?</Text>
         </Icon.Button>
         
           <ActionSheet

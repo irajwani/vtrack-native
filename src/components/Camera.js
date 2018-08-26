@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image } from 'react-native'
 import { RNCamera } from 'react-native-camera';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import { withNavigation } from 'react-navigation';
 
 
@@ -11,8 +13,10 @@ class MyCustomCamera extends Component {
       this.state = {
         isLoading: false,
         type: RNCamera.Constants.Type.back,
-        
+        flashMode: false,
+        front: false,
         pictureuri: null,
+        
     }
   }
   
@@ -40,11 +44,13 @@ class MyCustomCamera extends Component {
             }}
 
             style = {styles.preview}
-            type={RNCamera.Constants.Type.back}
-            flashMode={RNCamera.Constants.FlashMode.auto}
+            type={this.state.front ? RNCamera.Constants.Type.front : RNCamera.Constants.Type.back}
+            flashMode={this.state.flashMode ? RNCamera.Constants.FlashMode.on : RNCamera.Constants.FlashMode.off}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
         >
+        <View style = { {flexDirection: 'row'} }>
+        {/* camera button */}
           <View style={styles.cambuttons}>
               <TouchableHighlight style={styles.capture} onPress={this.takePicture.bind(this) } >
                 <Image
@@ -57,7 +63,21 @@ class MyCustomCamera extends Component {
           <ActivityIndicator animating={this.state.isLoading} color='#0040ff' size='large'/>
 
           </View>
-
+              {/* toggle flash mode */}
+          <View style={styles.button}>
+            <TouchableHighlight onPress={ () => {this.setState({flashMode: true})}}>
+              {this.state.flashMode ? <Icon type='material-community' name='flashlight' /> : <Icon color='white' type='material-community' name='flashlight-off' />
+               }
+            </TouchableHighlight>  
+          </View>
+                {/* toggle front camera */}
+          <View style={styles.button}>
+            <TouchableHighlight onPress={ () => {this.setState({front: true})}}>
+              {this.state.front ? <Icon color='white' type='material-community' name='camera-front' /> : <Icon color='black' type='material-community' name='camera-front' />
+               }
+            </TouchableHighlight>  
+          </View>
+        </View>
 
         </RNCamera>
 
@@ -89,6 +109,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         alignSelf: 'center',
         margin: 20
-      }
+      },
+      button: {
+        margin:20,
+        flex:0,
+        borderRadius:25,
+        width:50,
+        height:50,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'red'
+      },
 })
 export default withNavigation(MyCustomCamera)

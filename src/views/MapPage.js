@@ -101,22 +101,30 @@ class MapPage extends Component {
     var radius = 100;
     var condition;
     var location;
-    var locationsReached = 0;
+    
     for(let coord of data.coordinates) {
       location = {lat: coord.lat, lon: coord.lng};
       condition = glu.insideCircle(currentLocation, location, radius);
       if(condition) {
         coord.done = true;
-        locationsReached++;
         this.updateFirebase(uid, data);
       }
       
     }
-    console.log(data.coordinates);
-    if(locationsReached == data.coordinates.length) {
+    console.log( Object.values(data.coordinates)[0] );
+    var locationsReached = 0;
+    for (let coord of data.coordinates) {
+      if(coord.done) {locationsReached++}
+    }
+
+    if( locationsReached == data.coordinates.length ) {
       data.routeFinished = true;
       data.timeFinished = new Date();
       data.timeOfJourney = this.diff_minutes( data.timeFinished, this.state.timeStarted );
+      //metrics: 
+      // 1. timeOfJourney versus duration - 3 horizontal bars
+      //2. distance suggested by RN directions versus actual distance traveled
+      //3. illustrate instances of deviations from prescribed route
       console.log(data);
       this.updateFirebase(uid, data);
     }
@@ -172,6 +180,7 @@ class MapPage extends Component {
           title="Begin Journey" 
           onPress={ () => {this.startTimer();} } 
           disabled={this.state.buttonEnabled ? false : true} />
+        <Button title="Edit Profile" onPress={ ()=> {this.props.navigation.navigate('editprofile')}} />
 
       </View>
     )

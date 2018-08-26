@@ -4,7 +4,7 @@ const config = {
     authDomain: "deliveryconfirmation-207420.firebaseapp.com",
     databaseURL: "https://deliveryconfirmation-207420.firebaseio.com",
     projectId: "deliveryconfirmation-207420",
-    storageBucket: "",
+    storageBucket: "deliveryconfirmation-207420.appspot.com",
     messagingSenderId: "178171623130"
   };
 firebase.initializeApp(config);
