@@ -7,7 +7,7 @@ import { PulseIndicator } from 'react-native-indicators';
 import firebase from '../cloud/firebase.js'
 import styles from '../styles/base_styles.js'
 
-import Home from './Home.js'
+import MapPage from './MapPage.js'
 
 class SignIn extends Component {
 
@@ -108,7 +108,7 @@ class SignIn extends Component {
     if(this.state.isGetting == false) 
          {
           console.log(this.state.data); 
-          return(<Home uid={this.state.uid} data={this.state.data}/>)
+          return(<MapPage uid={this.state.uid} data={this.state.data}/>)
          }
     else {return (
             

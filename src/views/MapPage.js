@@ -20,7 +20,7 @@ function setInitialPosition() {
   return { initialPosition };
 }
 
-class Home extends Component {
+class MapPage extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -178,6 +178,6 @@ class Home extends Component {
   }
 }
 
-export default withNavigation(Home);
+export default withNavigation(MapPage);
 
 const styles = StyleSheet.create({})

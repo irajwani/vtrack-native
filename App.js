@@ -14,8 +14,11 @@ import {
 
 import { StackNavigator } from 'react-navigation';
 import SignIn from './src/views/SignIn';
-import Home from './src/views/Home';
+import EditProfile from './src/views/EditProfile'
+import MapPage from './src/views/MapPage';
 import CustomMap from './src/views/CustomMap';
+import MyCustomCamera from './src/components/Camera';
+import AddButton from './src/components/AddButton';
 
 
 var firebase = require('firebase')
@@ -35,11 +38,17 @@ const RootStack = StackNavigator(
 
     },
 
-    home: {
-      screen: Home
+    editprofile: EditProfile,
+
+    mappage: {
+      screen: MapPage
     },
 
-    map: CustomMap
+    map: CustomMap,
+
+    addbutton: AddButton,
+
+    camera: MyCustomCamera
 
 
   }
