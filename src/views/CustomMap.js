@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Dimensions } from 'react-native'
+import { Text, Image, StyleSheet, View, Dimensions } from 'react-native'
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Marker, Callout, Circle } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -15,7 +15,9 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export default class CustomMap extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      isCalloutVisible: false,
+    };
   }
 
   updateFirebase(data) {
@@ -50,9 +52,19 @@ export default class CustomMap extends Component {
         >
           <Marker
             coordinate={this.props.location}
-            title={"This is You"}
+            
             image={require('../resources/images/you.png')}
-          />
+            onPress={() => {this.setState({isCalloutVisible: !this.state.isCalloutVisible})}}
+          >
+            {this.state.isCalloutVisible ? <MapView.Callout>
+                <View>
+                    <Image source={{uri: this.props.data.profile.uri}} style={{height: 50, width: 50}}/>
+                    <Text>{this.props.data.profile.name}</Text>
+                </View>
+            </MapView.Callout> : null}
+
+          </Marker>
+            
           {this.props.destinations.map( 
             marker => (
               <Marker
@@ -68,8 +80,9 @@ export default class CustomMap extends Component {
               <Circle
                 center={marker.latlng}
                 radius={100}
-                fillColor={marker.done ? "green" : "yellow"}
-                strokeColor="black"
+                fillColor={marker.done ? "#1350b2" : "#031430"}
+                strokeColor={marker.done ? "#61d8ab" : "#031430"}
+                strokeWidth={marker.done ? 1.0 : 0.5}
               />
             )
           )

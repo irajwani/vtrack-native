@@ -21,13 +21,9 @@ class EditProfile extends Component {
   }
 
   updateFirebase = (uid, data, uri, mime = 'image/jpg') => {
-    var updates = {};
-    console.log(uri);
+    
 
-    updates['/Drivers/' + uid + '/profile/'] = data;
-
-    return {database: firebase.database().ref().update(updates), 
-            storage: new Promise((resolve, reject) => {
+    return {storage: new Promise((resolve, reject) => {
                         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
                         let uploadBlob = null
                         const imageRef = firebase.storage().ref().child(`Drivers/${uid}/`);
@@ -45,12 +41,17 @@ class EditProfile extends Component {
                         return imageRef.getDownloadURL()
                         })
                         .then((url) => {
-                        resolve(url)
+                          var updates = {};
+                          updates['/Drivers/' + uid + '/profile/'] = {name: data.name, uri: url} ;
+                          firebase.database().ref().update(updates) 
+                          resolve(url)
+
                         })
                         .catch((error) => {
                         reject(error)
                         })
                     })
+            
 }
   }
   render() {

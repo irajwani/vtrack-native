@@ -19,6 +19,8 @@ import MapPage from './src/views/MapPage';
 import CustomMap from './src/views/CustomMap';
 import MyCustomCamera from './src/components/Camera';
 import AddButton from './src/components/AddButton';
+import Dashboard from './src/views/Dashboard';
+
 
 
 var firebase = require('firebase')
@@ -37,6 +39,8 @@ const RootStack = StackNavigator(
       screen: SignIn
 
     },
+
+    dashboard: Dashboard,
 
     editprofile: EditProfile,
 

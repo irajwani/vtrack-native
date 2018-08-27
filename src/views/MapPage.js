@@ -173,6 +173,7 @@ class MapPage extends Component {
         <CustomMap 
           location={ {latitude: currentLatitude, longitude: currentLongitude, } }
           destinations={destinations}
+          data={this.props.data}
          />
 
         <Button title="Verify arrival" onPress={ () => {this.confirmArrival(this.props.uid, this.props.data, currentLocation); } } />

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View } from 'react-native'
 import {withNavigation} from 'react-navigation'
 
-export default class Dashboard extends Component {
+class Dashboard extends Component {
   render() {
     return (
       <View>
@@ -12,6 +12,6 @@ export default class Dashboard extends Component {
   }
 }
 
-export default withNavigation(Dashboard);
+export default withNavigation(Dashboard)
 
 const styles = StyleSheet.create({})
