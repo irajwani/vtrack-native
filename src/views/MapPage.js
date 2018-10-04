@@ -27,6 +27,7 @@ class MapPage extends Component {
       this.state = {
         isGetting: true,
         uid: '',
+        profile: '',
         initialPosition: 'unknown',
         currentPosition: 'unknown',
         currentLatitude: 'unknown',
@@ -178,7 +179,7 @@ class MapPage extends Component {
   }
 
   render() {
-    const {uid} = this.state;
+    const {uid, profile} = this.state;
     //var destinations = this.generateDestinations(data.coordinates);
 
     return (
@@ -186,10 +187,29 @@ class MapPage extends Component {
         
         <CustomMap 
           uid={uid}
+          profile={profile}
           location={ {latitude: currentLatitude, longitude: currentLongitude, } }
-          destinations={destinations}
-          data={data}
          />
+
+        {/* show driver profile pic avatar and details */}
+
+        <View style={styles.header}>
+          
+            <View style={styles.profilepicWrap}>
+            {profile.uri ? <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
+          : <Image style= {styles.profilepic} source={require('../resources/images/nothing_here.png')}/>} 
+            </View>
+          
+
+          <View style={styles.profileText}>
+            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.pos}>{profile.car} </Text>
+            <Text style={styles.insta}>@{profile.country} </Text>
+          </View>
+
+          
+
+        </View>
 
         <Button title="Verify arrival" onPress={ () => {
           //this.confirmArrival(uid, data, currentLocation);
@@ -208,4 +228,150 @@ class MapPage extends Component {
 
 export default withNavigation(MapPage);
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  linearGradient: {
+    flex: 1,
+  },
+  halfPageScroll: {
+    
+  },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 0
+  },
+  headerContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly'
+  },
+
+  profileText: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: 10,
+
+  },
+
+  numberCard: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#cdcdd6',
+    width: (width/2) - 20,
+    height: 100,
+    //55
+    padding: 0,
+    borderWidth: 0,
+    borderColor: '#020202',
+    borderRadius: 0,
+  },
+
+  subText: {
+    fontFamily: 'Courier-Bold',
+    fontSize: 20,
+    fontWeight: '400'
+  },
+
+  midContainer: {
+    flex: 0.5,
+    //0.2
+    padding: 0,
+  },
+
+  footerContainer: {
+    flex: 0.5,
+    flexDirection: 'column',
+    padding: 2
+  },
+
+  headerBackground: {
+    flex: 1,
+    width: null,
+    alignSelf: 'stretch',
+    justifyContent: 'space-between'
+  },
+  header: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    //backgroundColor: 'black'
+  },
+
+  gear: {
+    flex: 2,
+  },
+  gearAndPicRow: {
+    flex: 2,
+    flexDirection: 'row',
+    paddingRight: 75,
+  },
+  profilepicWrap: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    borderColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 0,
+  },
+  profilepic: {
+    flex: 1,
+    width: null,
+    alignSelf: 'stretch',
+    borderRadius: 65,
+    borderColor: '#fff',
+    borderWidth: 0
+  },
+  name: {
+    marginTop: 5,
+    fontSize: 27,
+    color: '#fff',
+    fontWeight: 'normal'
+  },
+  numberProducts: {
+    fontFamily: 'Arial',
+    fontSize: 25,
+    color: 'black',
+    fontWeight: 'bold'
+  },
+  soldProducts: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold'
+  }
+  ,
+  pos: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: '600',
+    fontStyle: 'italic'
+  },
+  insta: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+    fontStyle: 'normal'
+  },
+
+  companyLogoContainer: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: '#122021',
+  },
+  companyLogo: {
+    //resizeMode: 'container',
+    borderWidth:1,
+    borderColor:'#207011',
+    alignItems:'center',
+    justifyContent:'center',
+    width:40,
+    height:40,
+    backgroundColor:'#fff',
+    borderRadius:0,
+    borderWidth: 2,
+    marginLeft: (width/4)-10,
+    paddingLeft: 25,
+    paddingRight: 25
+
+}
+})

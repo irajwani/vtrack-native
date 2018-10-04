@@ -22,6 +22,10 @@ class MultiplePictureCamera extends Component {
         
     }
   }
+
+  componentDidMount() {
+    console.log('yo')
+  }
   
   takePicture(navToComponent) {
     console.log(navToComponent);

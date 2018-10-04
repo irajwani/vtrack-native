@@ -5,10 +5,10 @@ import MultiplePictureCamera from '../components/MultiplePictureCamera';
 
 
 
-export const editProfileToCameraStack = createStackNavigator({
+export const EditProfileToCameraStack = createStackNavigator({
 
     EditProfile: EditProfile,
-    PictureCamera: MultiplePictureCamera,
+    MultiplePictureCamera: MultiplePictureCamera,
     MultipleAddButton: MultipleAddButton,
 
 }, {

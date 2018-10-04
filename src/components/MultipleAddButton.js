@@ -28,6 +28,7 @@ class MultipleAddButton extends Component {
   launchCamera(navToComponent) {
     console.log('launching camera');
     this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` })
+    console.log('yo')
     //<MyCustomCamera />
     
   }

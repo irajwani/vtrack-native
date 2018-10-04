@@ -14,8 +14,7 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
-import { editProfileToCameraStack } from '../stackNavigators/editProfileToCameraStack.js';
-
+import { EditProfileToCameraStack } from '../stackNavigators/editProfileToCameraStack.js';
 
 const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
 
@@ -264,7 +263,7 @@ class SignIn extends Component {
         const {editProfile} = this.props;
         
         if(editProfile) {
-            return ( <editProfileToCameraStack/>)
+            return ( <EditProfileToCameraStack/> )
         }
     //     var promise = new Promise(function(resolve, reject) {
     //     var snapshot;

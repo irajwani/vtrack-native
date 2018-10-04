@@ -34,11 +34,11 @@ const reducer = (state = initialState, action) => {
             //create a new user
             firebase.auth().createUserWithEmailAndPassword(action.email, action.pass);
             //make a new database branch for user
-            var uid = firebase.auth().currentUser.uid;
-            var updates = {};
-            var postData = { name: '', car: '', country: '', uri: ''};
-            updates['/Drivers/' + uid + '/profile/'] = postData;
-            firebase.database().ref().update(updates);
+            // var uid = firebase.auth().currentUser.uid;
+            // var updates = {};
+            // var postData = { name: '', car: '', country: '', uri: ''};
+            // updates['/Drivers/' + uid + '/profile/'] = postData;
+            // firebase.database().ref().update(updates);
             newState.editProfile = true; 
 
         case 'showSignIn':

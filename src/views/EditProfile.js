@@ -26,41 +26,41 @@ class EditProfile extends Component {
       }
   }
 
-  addToUsersRoom() {
+//   addToUsersRoom() {
     
-    const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
-    const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/7a5d48bb-1cda-4129-88fc-a7339330f5eb/token";
-    const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
+//     const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
+//     const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/7a5d48bb-1cda-4129-88fc-a7339330f5eb/token";
+//     const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
-    const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+//     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
 
-    const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-      });
+//     const tokenProvider = new Chatkit.TokenProvider({
+//         url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+//       });
   
-    // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-    // For the purpose of this example we will use single room-user pair.
-    const chatManager = new Chatkit.ChatManager({
-    instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-    userId: CHATKIT_USER_NAME,
-    tokenProvider: tokenProvider
-    });
+//     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
+//     // For the purpose of this example we will use single room-user pair.
+//     const chatManager = new Chatkit.ChatManager({
+//     instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+//     userId: CHATKIT_USER_NAME,
+//     tokenProvider: tokenProvider
+//     });
 
-    chatManager.connect().then(currentUser => {
-        this.currentUser = currentUser;
-        console.log(this.currentUser);
-        var {rooms} = this.currentUser;
-        console.log(rooms); 
-        this.currentUser.joinRoom({
-            roomId: 15868783 //Users
-          })
-            .then(() => {
-              console.log('Added user to room')
-            })
-        }
-    )
-    //otherwise this function does nothing;
-  }
+//     chatManager.connect().then(currentUser => {
+//         this.currentUser = currentUser;
+//         console.log(this.currentUser);
+//         var {rooms} = this.currentUser;
+//         console.log(rooms); 
+//         this.currentUser.joinRoom({
+//             roomId: 15868783 //Users
+//           })
+//             .then(() => {
+//               console.log('Added user to room')
+//             })
+//         }
+//     )
+//     //otherwise this function does nothing;
+//   }
 
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
     
@@ -78,7 +78,7 @@ class EditProfile extends Component {
             storage: new Promise((resolve, reject) => {
                 const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
                 let uploadBlob = null
-                const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+                const imageRef = firebase.storage().ref().child(`Drivers/${uid}/profile`);
                 fs.readFile(uploadUri, 'base64')
                 .then((data) => {
                 return Blob.build(data, { type: `${mime};BASE64` })
@@ -115,7 +115,7 @@ class EditProfile extends Component {
     const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    var conditionMet = (this.state.name) && (this.state.car) && (pictureuri !== 'nothing here')
+    var conditionMet = (this.state.name) && (this.state.car) && (pictureuris !== 'nothing here')
 
     return (
       <View style={styles.container}>
@@ -149,7 +149,7 @@ class EditProfile extends Component {
         />
 
         <Sae
-            label={'Boston, MA'}
+            label={'City, Country'}
             iconClass={FontAwesomeIcon}
             iconName={'city'}
             iconColor={'#0a3f93'}

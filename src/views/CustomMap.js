@@ -30,12 +30,12 @@ export default class CustomMap extends Component {
   }
 
   render() {
-    const {uid} = this.props
-    var coords = [];
-    this.props.destinations.map(
-      (data) => {coords.push(data.latlng);}
-    );
-    console.log(coords.length);
+    const {uid, profile, location} = this.props
+    // var coords = [];
+    // this.props.destinations.map(
+    //   (data) => {coords.push(data.latlng);}
+    // );
+    // console.log(coords.length);
     return (
         <View style ={styles.container}>
         <MapView
@@ -45,8 +45,8 @@ export default class CustomMap extends Component {
 					provider={PROVIDER_GOOGLE}
 					style={styles.map}
           region={{
-                    latitude: this.props.location.latitude,
-                    longitude: this.props.location.longitude,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA,
                     }}
@@ -70,40 +70,8 @@ export default class CustomMap extends Component {
 
           </Marker>
             
-          {this.props.destinations.map( 
-            marker => (
-              <Marker
-                coordinate={marker.latlng}
-                title={"Destination"}
-                image={require('../resources/images/destination.png')}
-              />
-              
-            )
-          )}
-          {this.props.destinations.map(
-            marker => (
-              <Circle
-                center={marker.latlng}
-                radius={100}
-                fillColor={marker.done ? "#1350b2" : "#031430"}
-                strokeColor={marker.done ? "#61d8ab" : "#031430"}
-                strokeWidth={marker.done ? 1.0 : 0.5}
-              />
-            )
-          )
-
-          }
-          <MapViewDirections
-            origin={coords[0]}
-            destination={coords[coords.length - 1]}
-            waypoints={(coords.length > 2) ? coords.slice(1, -1): null}
-            onReady={ (result) => {
-              this.updateFirebase( uid, {duration: result.duration, distance: result.distance } )
-            } }
-            apikey={APIKey}
-            strokeWidth={2}
-            strokeColor="#e83e35"
-          />
+          
+          
         </MapView>
       </View>
     )
@@ -122,3 +90,40 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
       },
 })
+
+
+// {this.props.destinations.map( 
+//   marker => (
+//     <Marker
+//       coordinate={marker.latlng}
+//       title={"Destination"}
+//       image={require('../resources/images/destination.png')}
+//     />
+    
+//   )
+// )}
+// {this.props.destinations.map(
+//   marker => (
+//     <Circle
+//       center={marker.latlng}
+//       radius={100}
+//       fillColor={marker.done ? "#1350b2" : "#031430"}
+//       strokeColor={marker.done ? "#61d8ab" : "#031430"}
+//       strokeWidth={marker.done ? 1.0 : 0.5}
+//     />
+//   )
+// )
+
+// }
+
+{/* <MapViewDirections
+            origin={coords[0]}
+            destination={coords[coords.length - 1]}
+            waypoints={(coords.length > 2) ? coords.slice(1, -1): null}
+            onReady={ (result) => {
+              this.updateFirebase( uid, {duration: result.duration, distance: result.distance } )
+            } }
+            apikey={APIKey}
+            strokeWidth={2}
+            strokeColor="#e83e35"
+          /> */}
