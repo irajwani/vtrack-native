@@ -80,14 +80,15 @@ export default class CustomMap extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        ...StyleSheet.absoluteFillObject,
-        height: 500,
-        width: 400,
-        justifyContent: 'flex-end',
+        //...StyleSheet.absoluteFillObject,
+        padding: 50,
+        justifyContent: 'center',
         alignItems: 'center',
       },
       map: {
-        ...StyleSheet.absoluteFillObject,
+        //...StyleSheet.absoluteFillObject,
+        width: width,
+        height: 400,
       },
 })
 

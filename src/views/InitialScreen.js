@@ -6,6 +6,7 @@ import SignIn from './SignIn';
 import firebase from '../cloud/firebase';
 
 import {connect} from 'react-redux';
+import MapPageAndDashboardTab from '../tabNavigators/mapPageAndDashboardTab';
 
 class InitialScreen extends Component {
   constructor(props) {
@@ -25,7 +26,7 @@ class InitialScreen extends Component {
     const {uid, loggedIn, showSignIn} = this.props;
     
     if(loggedIn) {
-        return <MapPage/>
+        return <MapPageAndDashboardTab/>
     }
     
     if (showSignIn){

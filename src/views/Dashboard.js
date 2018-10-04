@@ -12,6 +12,6 @@ class Dashboard extends Component {
   }
 }
 
-export default withNavigation(Dashboard)
+export default Dashboard
 
 const styles = StyleSheet.create({})

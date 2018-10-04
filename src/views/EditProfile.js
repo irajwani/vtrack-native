@@ -72,7 +72,7 @@ class EditProfile extends Component {
         country: data.country
     }
 
-    updates['/Users/' + uid + '/profile/' + '/'] = postData;
+    updates['/Drivers/' + uid + '/profile/' + '/'] = postData;
 
     return {database: firebase.database().ref().update(updates), 
             storage: new Promise((resolve, reject) => {
@@ -96,7 +96,7 @@ class EditProfile extends Component {
                     
                     //update db with profile picture url
                     var profileupdates = {};
-                    profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
+                    profileupdates['/Drivers/' + uid + '/profile/' + 'uri/'] = url ;
                     firebase.database().ref().update(profileupdates);
 
                     //create a new user and add him to Users room

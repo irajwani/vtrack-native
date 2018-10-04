@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Button } from 'react-native'
+import { Text, StyleSheet, View, Dimensions, Image, Button } from 'react-native'
 import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase.js';
 import CustomMap from './CustomMap.js';
 import { database } from '../cloud/database.js';
 
 const glu = require('../components/geolocation-utils.js');
+
+const {width} = Dimensions.get('window');
 
 var initialPosition;
 var currentLatitude;
@@ -41,7 +43,9 @@ class MapPage extends Component {
 
   getDriversProfile(uid) {
     database.then( (d) => {
+      console.log(d);
       var profile = d.Drivers[uid].profile;
+      console.log(profile);
       this.setState({uid, profile});
     })
     .then( () => { this.setState( {isGetting: false} );  } )
@@ -84,7 +88,9 @@ class MapPage extends Component {
     
 		//0. get initial time
    const {uid} = firebase.auth().currentUser
-   this.getDriversProfile(uid);
+   setTimeout(() => {
+    this.getDriversProfile(uid);
+    }, 4);
 	 this.timerID = setInterval(
 			() => this.tick(uid),
 			40000
@@ -154,7 +160,7 @@ class MapPage extends Component {
   updateFirebase(uid, data) {
     
     var updates = {};
-    updates['/Drivers/' + uid + '/'] = data;
+    updates['/Users/' + uid + '/'] = data;
 
     return firebase.database().ref().update(updates);
 
@@ -179,11 +185,48 @@ class MapPage extends Component {
   }
 
   render() {
-    const {uid, profile} = this.state;
+    const {isGetting, uid, profile} = this.state;
+    console.log(profile);
     //var destinations = this.generateDestinations(data.coordinates);
+
+    if(isGetting) {
+      return (<View><Text>Loading...</Text></View>)
+    }
 
     return (
       <View>
+
+        {/* show driver profile pic avatar and details */}
+
+        <View style={styles.header}>
+          
+          <View style={styles.profilepicWrap}>
+          {profile.uri ? 
+            
+            <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
+            :
+            <Image style= {styles.profilepic} source={require('../resources/images/nothing_here.png')}/>
+          }
+           
+          <View style={styles.profileText}>
+            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.pos}>{profile.car} </Text>
+            <Text style={styles.insta}>@{profile.country} </Text>
+          </View>
+           
+          </View>
+        
+
+        
+
+        
+
+      </View>
+
+      <Button 
+        title="Begin Journey" 
+        onPress={ () => {this.startTimer();} } 
+        disabled={this.state.buttonEnabled ? false : true} />
         
         <CustomMap 
           uid={uid}
@@ -191,34 +234,6 @@ class MapPage extends Component {
           location={ {latitude: currentLatitude, longitude: currentLongitude, } }
          />
 
-        {/* show driver profile pic avatar and details */}
-
-        <View style={styles.header}>
-          
-            <View style={styles.profilepicWrap}>
-            {profile.uri ? <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
-          : <Image style= {styles.profilepic} source={require('../resources/images/nothing_here.png')}/>} 
-            </View>
-          
-
-          <View style={styles.profileText}>
-            <Text style={styles.name}>{profile.name}</Text>
-            <Text style={styles.pos}>{profile.car} </Text>
-            <Text style={styles.insta}>@{profile.country} </Text>
-          </View>
-
-          
-
-        </View>
-
-        <Button title="Verify arrival" onPress={ () => {
-          //this.confirmArrival(uid, data, currentLocation);
-          console.log('useless'); 
-          } } />
-        <Button 
-          title="Begin Journey" 
-          onPress={ () => {this.startTimer();} } 
-          disabled={this.state.buttonEnabled ? false : true} />
         
 
       </View>
@@ -226,7 +241,7 @@ class MapPage extends Component {
   }
 }
 
-export default withNavigation(MapPage);
+export default MapPage;
 
 const styles = StyleSheet.create({
   linearGradient: {
@@ -247,10 +262,10 @@ const styles = StyleSheet.create({
   },
 
   profileText: {
-    flex: 1,
+    //flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 10,
+    //paddingTop: 10,
 
   },
 
@@ -293,9 +308,10 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
+    marginTop: 20,
+    padding: 10,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     //backgroundColor: 'black'
   },
 
@@ -308,24 +324,27 @@ const styles = StyleSheet.create({
     paddingRight: 75,
   },
   profilepicWrap: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
+    flexDirection: 'row',
+    width: 80,
+    height: 30,
+    borderRadius: 0,
     borderColor: 'rgba(0,0,0,0.4)',
     borderWidth: 0,
   },
   profilepic: {
-    flex: 1,
-    width: null,
-    alignSelf: 'stretch',
-    borderRadius: 65,
+    //flex: 1,
+    width: 80,
+    height: 80,
+    //width: null,
+    //alignSelf: 'stretch',
+    borderRadius: 40,
     borderColor: '#fff',
     borderWidth: 0
   },
   name: {
-    marginTop: 5,
-    fontSize: 27,
-    color: '#fff',
+    
+    fontSize: 10,
+    color: 'black',
     fontWeight: 'normal'
   },
   numberProducts: {
@@ -341,14 +360,14 @@ const styles = StyleSheet.create({
   }
   ,
   pos: {
-    fontSize: 20,
-    color: '#fff',
+    fontSize: 10,
+    color: 'purple',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
-    fontSize: 16,
-    color: '#fff',
+    fontSize: 10,
+    color: 'orange',
     fontWeight: '600',
     fontStyle: 'normal'
   },
