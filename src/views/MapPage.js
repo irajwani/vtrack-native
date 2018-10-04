@@ -3,6 +3,7 @@ import { Text, StyleSheet, View, Button } from 'react-native'
 import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase.js';
 import CustomMap from './CustomMap.js';
+import { database } from '../cloud/database.js';
 
 const glu = require('../components/geolocation-utils.js');
 
@@ -24,6 +25,8 @@ class MapPage extends Component {
   constructor(props) {
       super(props);
       this.state = {
+        isGetting: true,
+        uid: '',
         initialPosition: 'unknown',
         currentPosition: 'unknown',
         currentLatitude: 'unknown',
@@ -35,7 +38,16 @@ class MapPage extends Component {
 
   }
 
-  tick() {
+  getDriversProfile(uid) {
+    database.then( (d) => {
+      var profile = d.Drivers[uid].profile;
+      this.setState({uid, profile});
+    })
+    .then( () => { this.setState( {isGetting: false} );  } )
+    .catch( (err) => {console.log(err) })
+  }
+
+  tick(uid) {
 		navigator.geolocation.getCurrentPosition(
 			position => {
 			  var JSONData = JSON.stringify(position);
@@ -60,7 +72,7 @@ class MapPage extends Component {
       currentLocation = {lat: currentLatitude, lon: currentLongitude};
       your_location = {currentLatitude, currentLongitude, currentLocation};
       
-      this.updateFirebaseCurrentLocation(this.props.uid, currentLocation);
+      this.updateFirebaseCurrentLocation(uid, currentLocation);
 	  
       });
       
@@ -70,9 +82,10 @@ class MapPage extends Component {
  	componentDidMount() {
     
 		//0. get initial time
-	
+   const {uid} = firebase.auth().currentUser
+   this.getDriversProfile(uid);
 	 this.timerID = setInterval(
-			() => this.tick(),
+			() => this.tick(uid),
 			40000
       ); 
       //In this case, simply increment the clock every 30 seconds
@@ -96,6 +109,8 @@ class MapPage extends Component {
     this.setState( {timeStarted: new Date(), buttonEnabled: false} )
   }
 
+  /////////////
+  //don't need this function for this application
   confirmArrival(uid, data, currentLocation) {
     // if youve made it, then update 'done' to true
     var radius = 100;
@@ -133,6 +148,7 @@ class MapPage extends Component {
     //update firebase with new results
 
   }
+  ///////////////
 
   updateFirebase(uid, data) {
     
@@ -162,26 +178,28 @@ class MapPage extends Component {
   }
 
   render() {
-    console.log(this.props.data)
-    var destinations = this.generateDestinations(this.props.data.coordinates);
+    const {uid} = this.state;
+    //var destinations = this.generateDestinations(data.coordinates);
 
     return (
       <View>
         
-        <Text> You need to leave by: </Text>
-        <Text>{this.props.data.time}</Text>
         <CustomMap 
+          uid={uid}
           location={ {latitude: currentLatitude, longitude: currentLongitude, } }
           destinations={destinations}
-          data={this.props.data}
+          data={data}
          />
 
-        <Button title="Verify arrival" onPress={ () => {this.confirmArrival(this.props.uid, this.props.data, currentLocation); } } />
+        <Button title="Verify arrival" onPress={ () => {
+          //this.confirmArrival(uid, data, currentLocation);
+          console.log('useless'); 
+          } } />
         <Button 
           title="Begin Journey" 
           onPress={ () => {this.startTimer();} } 
           disabled={this.state.buttonEnabled ? false : true} />
-        <Button title="Edit Profile" onPress={ ()=> {this.props.navigation.navigate('editprofile')}} />
+        
 
       </View>
     )

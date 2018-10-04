@@ -20,16 +20,17 @@ export default class CustomMap extends Component {
     };
   }
 
-  updateFirebase(data) {
+  updateFirebase(uid, data) {
     
     var updates = {};
-    updates['/Drivers/' + firebase.auth().currentUser.uid + '/distance_and_duration' + '/'] = data;
+    updates['/Drivers/' + uid + '/distance_and_duration' + '/'] = data;
 
     return firebase.database().ref().update(updates);
 
   }
 
   render() {
+    const {uid} = this.props
     var coords = [];
     this.props.destinations.map(
       (data) => {coords.push(data.latlng);}
@@ -56,12 +57,16 @@ export default class CustomMap extends Component {
             image={require('../resources/images/you.png')}
             onPress={() => {this.setState({isCalloutVisible: !this.state.isCalloutVisible})}}
           >
-            {this.state.isCalloutVisible ? <MapView.Callout>
-                <View>
-                    <Image source={{uri: this.props.data.profile.uri}} style={{height: 50, width: 50}}/>
-                    <Text>{this.props.data.profile.name}</Text>
-                </View>
-            </MapView.Callout> : null}
+            {this.state.isCalloutVisible ? 
+              <MapView.Callout>
+                  <View>
+                      <Image source={{uri: profile.uri}} style={{height: 50, width: 50}}/>
+                      <Text>{profile.name}</Text>
+                  </View>
+              </MapView.Callout>
+              : 
+              null
+            }
 
           </Marker>
             
@@ -93,7 +98,7 @@ export default class CustomMap extends Component {
             destination={coords[coords.length - 1]}
             waypoints={(coords.length > 2) ? coords.slice(1, -1): null}
             onReady={ (result) => {
-              this.updateFirebase( {duration: result.duration, distance: result.distance } )
+              this.updateFirebase( uid, {duration: result.duration, distance: result.distance } )
             } }
             apikey={APIKey}
             strokeWidth={2}

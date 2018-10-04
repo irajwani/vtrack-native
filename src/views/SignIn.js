@@ -1,20 +1,84 @@
-import React, { Component } from 'react'
-import { KeyboardAvoidingView, View, Text, Button, Image, TouchableHighlight, ActivityIndicator } from 'react-native';
+import React, { Component } from 'react';
+import { Dimensions, View, Text, Image, TouchableHighlight, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import {connect} from 'react-redux';
+
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
-import { PulseIndicator } from 'react-native-indicators';
+import { PacmanIndicator } from 'react-native-indicators';
+import {Button} from 'react-native-elements'
+//import AwesomeButtonRick from 'react-native-really-awesome-button/src/themes/rick'
+import styles from '../styles/styles.js';
+//import GeoAttendance from './geoattendance.js';
 
-import firebase from '../cloud/firebase.js'
-import styles from '../styles/base_styles.js'
+import firebase from '../cloud/firebase.js';
+import {database} from '../cloud/database';
 
-import MapPage from './MapPage.js'
+import { systemWeights, iOSColors } from 'react-native-typography';
+import { editProfileToCameraStack } from '../stackNavigators/editProfileToCameraStack.js';
 
+
+const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
+
+const {width, height} = Dimensions.get('window');
+//THIS PAGE: 
+//Allows user to sign in or sign up
+//Updates products on firebase db by scouring products from each user's list of products.
+//Updates each user's chats on firebase db by identifying what rooms they are in (which products they currently want to buy or sell) and attaching the relevant information.
+
+
+//var database = firebase.database();
+
+function timeSince(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+    return Math.floor(seconds/86400);;
+    
+}
+
+
+//currently no barrier to logging in and signing up
 class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { data: '', test: 3, email: '', uid: '', pass: '', error: '', loading: false, loggedIn: false, isGetting: true};
+      this.state = { products: [], email: '', uid: '', pass: '',};
       }
+
+    //   componentWillMount() {
+    //       this.updateProducts();
+    //   }
+
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition(
+			position => {
+			  var JSONData = JSON.stringify(position);
+			  var ParsedData = JSON.parse(JSONData);
+              console.log(ParsedData);
+              //const initialPosition = ParsedData.coords.latitude;
+			  
+			  //this.setState({ initialPosition });
+			},
+			error => console.log(error.message),
+			{
+			  enableHighAccuracy: true,
+			  timeout: 5000,
+			  distanceFilter: 2,
+			}
+          );
+        this.watchID = navigator.geolocation.watchPosition(position => {
+			const JSONData = JSON.stringify(position);
+			var ParsedData = JSON.parse(JSONData);
+			console.log(ParsedData);
+		  });  
+    }
+    
+    componentWillUnmount() {
+        navigator.geolocation.clearWatch(this.watchID);
+    }
+
+    arrayToObject(arr, keyField) {
+        Object.assign({}, ...arr.map(item => ({[item[keyField]]: item})))
+    }
     /////////
     ///////// Hello world for Login/Signup Email Authentication
     onSignInPress() {
@@ -22,57 +86,134 @@ class SignIn extends Component {
         const { email, pass } = this.state; //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => { this.setState({ error: '', loading: false });
-                          this.authChangeListener();
+                          //this.authChangeListener();
                           //cant do these things:
                           //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
-                          }).catch(() => {
-                firebase.auth().createUserWithEmailAndPassword(email, pass)
-                    .then(() => { this.setState({ error: '', loading: false });
-                                  this.authChangeListener();  }
-                                      )
-                    .catch(() => {
-                      // console.log( 'registration error', error )
-                      // if (error.code === 'auth/email-already-in-use') {
-                      //       var credential = firebase.auth.EmailAuthProvider.credential(email, password);
-                      //
-                      //
-                      // }
+                          })
+            .catch( () => {
+                this.setState( {error: 'Authentication failed, please sign up or enter correct credentials.', loading: false } );
+                alert(this.state.error);
+            }
 
-                      this.setState({ error: 'Authentication failed, booo hooo.', loading: false });
-                    });
-            });
+            )
 
     }
 
-    getData(snapshot) {
-        data = {
-            coords: null,
-            time: new Date()
-        };
+    onSignUpPress() {
+        this.setState({ error: '', loading: true });
+        const { email, pass } = this.state;
+        firebase.auth().createUserWithEmailAndPassword(email, pass)
+                    .then(() => { this.setState({ error: '', loading: false });
+                                  firebase.auth().onAuthStateChanged( (user) => {
+                                    if (user) {
+                                        //give the user a new branch on the firebase realtime DB
+                                        var updates = {};
+                                        var postData = {products: '', profile: ''}
+                                        updates['/Users/' + user.uid + '/'] = postData;
+                                        firebase.database().ref().update(updates);
+                        
+                                        this.props.navigation.navigate('EditProfile')
+                                        //this.setState({uid: user.uid, loggedIn: true, isGetting: false});
+                                    
+                                        
+                                    } else {
+                                        alert('no user found');
+                                    }
+                        
+                        
+                                } )
+                                    }
+                                      )
+                    .catch(() => {
+                      
+                      this.setState({ error: 'Authentication failed, booo hooo.', loading: false });
+                    });
+    }
+
+    // getData(snapshot) {
+    //     details = {
+    //         name: 'the many faced God',
+    //         shirt: 'never'
+    //     };
         
-        data.coordinates = snapshot.val().coordinates
-        data.time = snapshot.val().time
-        data.profile = snapshot.val().profile
-        
-        this.setState({data, isGetting: false});
+    //     details.name = snapshot.val().name
+    //     details.shirt = snapshot.val().shirt
+    //     //console.log(details);
+    //     this.setState({details, isGetting: false});
+    // }
+
+    // getDB(snapshot) {
+    //     this.setState({data: snapshot.val()});
+    //     console.log(this.state.data);
+    // }
+
+    updateProducts() {
+
+        database.then( (d) => {
+            var uids = Object.keys(d.Users);
+            console.log(uids)
+            var keys = [];
+            //get all keys for each product iteratively across each user
+            for(uid of uids) {
+                if(Object.keys(d.Users[uid]).includes('products') ) {
+                Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
+                }
+            }
+            console.log(keys);
+            var products = [];
+            var updates = {};
+            var chatUpdates = {};
+            var postData;
+            var i = 0;
+            //go through all products in each user's branch and update the Products section of the database
+            for(const uid of uids) {
+                for(const key of keys) {
+
+                if(Object.keys(d.Users[uid]).includes('products') ) {
+
+                    if( Object.keys(d.Users[uid].products).includes(key)  ) {
+                        
+                            var daysElapsed;
+                            daysElapsed = timeSince( d.Users[uid].products[key].time);
+                            daysElapsed >= 7 ? 
+                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
+                                :
+                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };
+                            updates['/Products/' + i + '/'] = postData;
+                            firebase.database().ref().update(updates);
+                            i++;
+
+
+                        
+
+                    }
+                
+                }
+
+                
+                
+                }
+            }
+            
+            
+            
+        })
+        .then( () => {
+            console.log(this.state.products)
+            
+        })
+        .catch( (err) => console.log(err))
+                
+
     }
 
 
     authChangeListener() {
-
+        
         firebase.auth().onAuthStateChanged( (user) => {
             if (user) {
-                var name = 'nothing here';
-                
 
-                firebase.database().ref('Drivers/' + user.uid + '/').once('value', this.getData.bind(this), function (errorObject) {
-                    console.log("The read failed: " + errorObject.code);
-                  });
-                this.setState({uid: user.uid, loggedIn: true});
-                //console.log(this.state.name);
-                //alert(this.state.uid);
-                //return this.props.navigation.navigate('ga', {userid: this.state.uid});
-                //if (this.state.isGetting == false) {return this.props.navigation.navigate('ga', {data: this.state.data, attended: this.state.details.attended, name: this.state.details.name, userid: this.state.uid}); //abandon forced navigation. conditional render
+                this.setState({uid: user.uid, loggedIn: true, isGetting: false});
             
                 
             } else {
@@ -86,88 +227,236 @@ class SignIn extends Component {
                   }
 
 
-    renderButtonOrLoading() {
-        if (this.state.loading) {
+
+    renderButtonOrLoading = () => {
+        if (this.props.loading) {
             return <View style={{flex: 1}}>
-                        <ActivityIndicator size='large' color="#0000ff"/>
+                        <PacmanIndicator color='#28a526' />
                    </View>
         }
-        return <Button
+        return 
+            <View >
+                <Button
                     title='Sign In' 
-                    onPress={this.onSignInPress.bind(this)} />;
+                    titleStyle={{ fontWeight: "700" }}
+                    buttonStyle={{
+                    backgroundColor: "#16994f",
+                    //#2ac40f
+                    //#45bc53
+                    //#16994f
+                    width: (width)*0.70,
+                    height: 45,
+                    borderColor: "#37a1e8",
+                    borderWidth: 0,
+                    borderRadius: 5,
+                    
+                    }}
+                    containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />;
+             </View>
+            
     }
+
 
     ///////////////////
     //////////////////
 
-    render() 
-     {
-        //  const a = [1,4,2,3,4];
-        //  const maxNum = Math.max(...a);
-        //  console.log(a.filter( num => num == maxNum ).length);
-    
-    if(this.state.isGetting == false) 
-         {
-          console.log(this.state.data); 
-          return(<MapPage uid={this.state.uid} data={this.state.data}/>)
-         }
-    else {return (
+    render() {
+        const {editProfile} = this.props;
+        
+        if(editProfile) {
+            return ( <editProfileToCameraStack/>)
+        }
+    //     var promise = new Promise(function(resolve, reject) {
+    //     var snapshot;
+    //     snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
+
+    //     if (snapshot) {
+    //       resolve("Stuff worked!");
+    //     }
+    //     else {
+    //       reject(Error("It broke"));
+    //     }
+    //   });
+    //   var snapshot;
+    //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
+    //   //snapshot.then( result => return console.log(result.val().name) );
+    //   console.log(snapshot);
+
+        //  {
+        //   console.log(this.state.uid); 
+        //   return ( <ProfilePage uid={this.state.uid} /> ) 
+        //  }
+    return (
             
-        <KeyboardAvoidingView behavior='padding'
-        style={styles.signInContainer}>
-                  {/* <TextInputField
-                      label='Email Address'
-                      placeholder='youremailaddress@bates.edu'
-                      value={this.state.email}
-                      onChangeText={email => this.setState({ email })}
-                      autoCorrect={false}
-                  />
-                  <TextInputField
-                      label='Password'
-                      autoCorrect={false}
-                      placeholder='Your Password'
-                      secureTextEntry
-                      value={this.state.pass}
-                      onChangeText={pass => this.setState({ pass })}
-                  />
-                  <Text>{this.state.error}</Text> */}
+          <KeyboardAvoidingView behavior='padding'
+          style={styles.signInContainer}>
+
+            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 25}}>
+                <View style={styles.companyLogoContainer}>
+                    <Image source={require('../resources/images/companyLogo.png')} style={styles.companyLogo}/>
+                </View>
                   
                 <Hoshi
-                    label={'Drivers Email Address'}
+                    label={'Email Address'}
+                    labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
                     value={this.state.email}
                     onChangeText={email => this.setState({ email })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={'#800000'}
+                    borderColor={'#122021'}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: '#800000' }}
+                    backgroundColor={'#122021'}
+                    inputStyle={{ color: '#0d7018' }}
                 />
                 <Hoshi
-                    label={'Super Secret Password'}
+                    label={'Password'}
+                    labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
                     value={this.state.pass}
                     onChangeText={pass => this.setState({ pass })}
                     autoCorrect={false}
                     secureTextEntry
                     // this is used as active border color
-                    borderColor={'#000099'}
+                    borderColor={'#122021'}
                     // this is used to set backgroundColor of label mask.
+                    backgroundColor={'#122021'}
                     // please pass the backgroundColor of your TextInput container.
-                    inputStyle={{ color: '#800000' }}
+                    inputStyle={{ color: '#0d7018' }}
                 />
-                  {this.renderButtonOrLoading()}
+            </View>
+            {this.props.loading ? 
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#28a526' />
+                </View>
+                :
+                <View style={{ padding: 20, alignContent: 'center'}}>
+                    <Button
+                        title='Sign In' 
+                        titleStyle={{ fontWeight: "700" }}
+                        buttonStyle={{
+                        backgroundColor: "#16994f",
+                        //#2ac40f
+                        //#45bc53
+                        //#16994f
+                        width: (width)*0.70,
+                        height: 45,
+                        borderColor: "#37a1e8",
+                        borderWidth: 0,
+                        borderRadius: 5,
+                        
+                        }}
+                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />
+                    <Button
+                        title='Sign Up' 
+                        titleStyle={{ fontWeight: "700" }}
+                        buttonStyle={{
+                        backgroundColor: '#368c93',
+                        //#2ac40f
+                        width: (width)*0.70,
+                        height: 45,
+                        borderColor: "#226b13",
+                        borderWidth: 0,
+                        borderRadius: 5
+                        }}
+                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
+                        onPress={ () => {this.props.onSignUpPress(this.state.email, this.state.pass);}}  />  
+             </View>}
+                  
+                
+
+                 
                 
           
           </KeyboardAvoidingView>
                   )
 
 
-                }
+                
 
         
     }
 
+
+
+    ////////////////////////
+    ////////////////////////
+
+    // render() 
+    //  {    
+    // //     var promise = new Promise(function(resolve, reject) {
+    // //     var snapshot;
+    // //     snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
+
+    // //     if (snapshot) {
+    // //       resolve("Stuff worked!");
+    // //     }
+    // //     else {
+    // //       reject(Error("It broke"));
+    // //     }
+    // //   });
+    // //   var snapshot;
+    // //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
+    // //   //snapshot.then( result => return console.log(result.val().name) );
+    // //   console.log(snapshot);
+    //   if (this.state.loggedIn) {
+    //     //console.log(this.state.uid);
+    //     if (this.state.isGetting) {
+
+    //       return (
+
+    //       <View style={[styles.horizontal, styles.aicontainer]}>
+    //                     <ActivityIndicator size="large" color="#0000ff"/>
+    //                </View>
+
+    //     );  } else { return ( <View><Text>What up</Text></View> ) }
+
+    //      } else {
+    //       return (
+    //       <View>
+    //               <TextInputField
+    //                   label='Email Address'
+    //                   placeholder='youremailaddress@bates.edu'
+    //                   value={this.state.email}
+    //                   onChangeText={email => this.setState({ email })}
+    //                   autoCorrect={false}
+    //               />
+    //               <TextInputField
+    //                   label='Password'
+    //                   autoCorrect={false}
+    //                   placeholder='Your Password'
+    //                   secureTextEntry
+    //                   value={this.state.pass}
+    //                   onChangeText={pass => this.setState({ pass })}
+    //               />
+    //               <Text>{this.state.error}</Text>
+    //               {this.renderButtonOrLoading()}
+    //       </View>
+    //               )
+
+
+
+
+    //     }
+    // }
 }
 
-export default withNavigation(SignIn)
+// this feeds the singular store whenever the state changes
+const mapStateToProps = (state) => {
+    return {
+        showSignIn: state.showSignIn,
+        loading: state.loading,
+        loggedIn: state.loggedIn,
+        editProfile: state.editProfile
+    }
+}
+
+//if we want a component to access the store, we need to map actions to the props
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
+        onSignUpPress: (email, pass) => dispatch( {type: 'onSignUpPress', email: email, pass: pass } ),
+        //onSignInLoading: () => dispatch( {type: 'onSignInLoading'} )
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
