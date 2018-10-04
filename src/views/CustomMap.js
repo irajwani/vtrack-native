@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
-import { Text, Image, StyleSheet, View, Dimensions } from 'react-native'
+import { Text, Image, TouchableOpacity, StyleSheet, View, Dimensions, Platform } from 'react-native'
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { Marker, Callout, Circle } from 'react-native-maps';
+import { Marker, AnimatedRegion, Polyline } from "react-native-maps";
+import haversine from "haversine";
 import MapViewDirections from 'react-native-maps-directions';
 import firebase from '../cloud/firebase.js';
 
 const APIKey = "AIzaSyD2zYVyRTyNemGQtnrjsZnGGrR7R0knzMg";
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.0922;
+const LATITUDE = 29.95539;
+const LONGITUDE = 78.07513;
+const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 //Icons made by SimpleIcon from wwww.flaticon.com is licensed by Creative Commons BY 3.0
 
@@ -16,9 +19,104 @@ export default class CustomMap extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      latitude: LATITUDE,
+      longitude: LONGITUDE,
       isCalloutVisible: false,
+      routeCoordinates: [],
+      distanceTravelled: 0,
+      prevLatLng: {},
+      coordinate: new AnimatedRegion({
+      latitude: LATITUDE,
+      longitude: LONGITUDE
+      })
     };
   }
+
+  componentWillMount() {
+    navigator.geolocation.getCurrentPosition(
+      position => {},
+      error => alert(error.message),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000
+      }
+    );
+  }
+
+  componentDidMount() {
+    // this.timerID = setInterval(
+		// 	() => this.tick(uid),
+		// 	40000
+    //   )
+    const {coordinate} = this.state;
+    this.watchPosition();
+  }
+
+  componentWillUnmount = () => {
+		navigator.geolocation.clearWatch(this.watchID);
+		//clearInterval(this.timerID);
+  };
+
+  watchPosition = () => {
+    this.watchID = navigator.geolocation.watchPosition(
+      position => {
+        const JSONData = JSON.stringify(position);
+        var ParsedData = JSON.parse(JSONData);
+        const { coordinate, routeCoordinates, distanceTravelled } = this.state;
+        const { latitude, longitude } = ParsedData.coords;
+
+        const newCoordinate = {
+          latitude,
+          longitude
+        };
+
+        if (Platform.OS === "android") {
+          if (this.marker) {
+            this.marker._component.animateMarkerToCoordinate(
+              newCoordinate,
+              500
+            );
+          }
+        } else {
+          coordinate.timing(newCoordinate).start();
+        }
+
+        this.setState({
+          latitude,
+          longitude,
+          routeCoordinates: routeCoordinates.concat([newCoordinate]),
+          distanceTravelled:
+            distanceTravelled + this.calcDistance(newCoordinate),
+          prevLatLng: newCoordinate
+        });
+      },
+      error => console.log(error),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+      
+    }
+
+  calcDistance = newLatLng => {
+    const { prevLatLng } = this.state;
+    return haversine(prevLatLng, newLatLng) || 0;
+  };
+
+  getMapRegion = () => ({
+    latitude: this.state.latitude,
+    longitude: this.state.longitude,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA
+  });
+
+  updateFirebaseCurrentLocation(uid, data) {
+    
+    var updates = {};
+    updates['/Drivers/' + uid + '/currentLocation' + '/'] = data;
+
+    return firebase.database().ref().update(updates);
+
+  }  
 
   updateFirebase(uid, data) {
     
@@ -29,8 +127,12 @@ export default class CustomMap extends Component {
 
   }
 
+
+
   render() {
-    const {uid, profile, location} = this.props
+    const { profile} = this.props
+    const {currentLatitude, currentLongitude} = this.state;
+
     // var coords = [];
     // this.props.destinations.map(
     //   (data) => {coords.push(data.latlng);}
@@ -44,15 +146,13 @@ export default class CustomMap extends Component {
 					}}
 					provider={PROVIDER_GOOGLE}
 					style={styles.map}
-          region={{
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    latitudeDelta: LATITUDE_DELTA,
-                    longitudeDelta: LONGITUDE_DELTA,
-                    }}
+          region={this.getMapRegion()}
+          showUserLocation
+          followUserLocation
+          loadingEnabled
         >
           <Marker
-            coordinate={this.props.location}
+            coordinate={ {latitude: currentLatitude, longitude: currentLongitude, } }
             
             image={require('../resources/images/you.png')}
             onPress={() => {this.setState({isCalloutVisible: !this.state.isCalloutVisible})}}
@@ -69,10 +169,25 @@ export default class CustomMap extends Component {
             }
 
           </Marker>
+
+          <Polyline coordinates={this.state.routeCoordinates} strokeWidth={5} />
+          <Marker.Animated
+            ref={marker => {
+              this.marker = marker;
+            }}
+            coordinate={this.state.coordinate}
+          />
             
           
           
         </MapView>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.bubble, styles.button]}>
+            <Text style={styles.bottomBarContent}>
+              {parseFloat(this.state.distanceTravelled).toFixed(2)} km
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     )
   }
@@ -88,8 +203,30 @@ const styles = StyleSheet.create({
       map: {
         //...StyleSheet.absoluteFillObject,
         width: width,
-        height: 400,
+        height: 440,
       },
+      bubble: {
+        flex: 1,
+        backgroundColor: "rgba(255,255,255,0.7)",
+        paddingHorizontal: 18,
+        paddingVertical: 12,
+        borderRadius: 20
+      },
+      latlng: {
+        width: 200,
+        alignItems: "stretch"
+      },
+      button: {
+        width: 80,
+        paddingHorizontal: 12,
+        alignItems: "center",
+        marginHorizontal: 10
+      },
+      buttonContainer: {
+        flexDirection: "row",
+        marginVertical: 20,
+        backgroundColor: "transparent"
+      }
 })
 
 

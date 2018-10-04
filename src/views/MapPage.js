@@ -9,11 +9,6 @@ const glu = require('../components/geolocation-utils.js');
 
 const {width} = Dimensions.get('window');
 
-var initialPosition;
-var currentLatitude;
-var currentLongitude;
-var currentLocation;
-var your_location;
 
 function setInitialPosition() {
   if (currentLatitude) {
@@ -30,12 +25,6 @@ class MapPage extends Component {
         isGetting: true,
         uid: '',
         profile: '',
-        initialPosition: 'unknown',
-        currentPosition: 'unknown',
-        currentLatitude: 'unknown',
-        currentLongitude: 'unknown',
-        currentLocation: {lat: 25, lon: 25},
-        data: '',
         buttonEnabled: true,
       }
 
@@ -52,57 +41,15 @@ class MapPage extends Component {
     .catch( (err) => {console.log(err) })
   }
 
-  tick(uid) {
-		navigator.geolocation.getCurrentPosition(
-			position => {
-			  var JSONData = JSON.stringify(position);
-			  var ParsedData = JSON.parse(JSONData);
-        initialPosition = ParsedData.coords.latitude;
-        this.setState({ setInitialPosition });
-			},
-			error => alert(error.message),
-			{
-			  enableHighAccuracy: true,
-			  timeout: 20000,
-			  maximumAge: 10,
-			  distanceFilter: 2,
-			}
-		  );
-		  //2. Watch the user's location for changes
-		  this.watchID = navigator.geolocation.watchPosition(position => {
-			const JSONData = JSON.stringify(position);
-			var ParsedData = JSON.parse(JSONData);
-			currentLatitude = ParsedData.coords.latitude;
-      currentLongitude = ParsedData.coords.longitude;
-      currentLocation = {lat: currentLatitude, lon: currentLongitude};
-      your_location = {currentLatitude, currentLongitude, currentLocation};
-      
-      this.updateFirebaseCurrentLocation(uid, currentLocation);
-	  
-      });
-      
-	  }
-
-
- 	componentDidMount() {
+ 	componentWillMount() {
     
 		//0. get initial time
-   const {uid} = firebase.auth().currentUser
-   setTimeout(() => {
-    this.getDriversProfile(uid);
-    }, 4);
-	 this.timerID = setInterval(
-			() => this.tick(uid),
-			40000
-      ); 
+   const uid = firebase.auth().currentUser.uid
+   this.getDriversProfile(uid);
+    
       //In this case, simply increment the clock every 30 seconds
 		
   }
-  
-  componentWillUnmount = () => {
-		navigator.geolocation.clearWatch(this.watchID);
-		//clearInterval(this.timerID);
-  };
 
   diff_minutes(dt2, dt1) {
 
@@ -166,15 +113,6 @@ class MapPage extends Component {
 
   }
 
-  updateFirebaseCurrentLocation(uid, data) {
-    
-    var updates = {};
-    updates['/Drivers/' + uid + '/currentLocation' + '/'] = data;
-
-    return firebase.database().ref().update(updates);
-
-  }
-
   generateDestinations(coords) {
     var destinations = [];
     for(let i = 0; i < coords.length; i++) {
@@ -186,7 +124,6 @@ class MapPage extends Component {
 
   render() {
     const {isGetting, uid, profile} = this.state;
-    console.log(profile);
     //var destinations = this.generateDestinations(data.coordinates);
 
     if(isGetting) {
@@ -212,7 +149,12 @@ class MapPage extends Component {
             <Text style={styles.name}>{profile.name}</Text>
             <Text style={styles.pos}>{profile.car} </Text>
             <Text style={styles.insta}>@{profile.country} </Text>
+            
           </View>
+          <Button 
+        title="Begin Journey" 
+        onPress={ () => {this.startTimer();} } 
+        disabled={this.state.buttonEnabled ? false : true} />
            
           </View>
         
@@ -223,15 +165,10 @@ class MapPage extends Component {
 
       </View>
 
-      <Button 
-        title="Begin Journey" 
-        onPress={ () => {this.startTimer();} } 
-        disabled={this.state.buttonEnabled ? false : true} />
+      
         
         <CustomMap 
-          uid={uid}
           profile={profile}
-          location={ {latitude: currentLatitude, longitude: currentLongitude, } }
          />
 
         
@@ -263,6 +200,7 @@ const styles = StyleSheet.create({
 
   profileText: {
     //flex: 1,
+    padding: 5,
     flexDirection: 'column',
     alignItems: 'center',
     //paddingTop: 10,
@@ -308,7 +246,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 10,
     padding: 10,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -325,7 +263,7 @@ const styles = StyleSheet.create({
   },
   profilepicWrap: {
     flexDirection: 'row',
-    width: 80,
+    width: 200,
     height: 30,
     borderRadius: 0,
     borderColor: 'rgba(0,0,0,0.4)',
@@ -343,7 +281,7 @@ const styles = StyleSheet.create({
   },
   name: {
     
-    fontSize: 10,
+    fontSize: 15,
     color: 'black',
     fontWeight: 'normal'
   },
