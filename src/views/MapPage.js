@@ -4,6 +4,7 @@ import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase.js';
 import CustomMap from './CustomMap.js';
 import { database } from '../cloud/database.js';
+import ProximitySensor from '../components/ProximitySensor.js';
 
 const glu = require('../components/geolocation-utils.js');
 
@@ -151,10 +152,8 @@ class MapPage extends Component {
             <Text style={styles.insta}>@{profile.country} </Text>
             
           </View>
-          <Button 
-        title="Begin Journey" 
-        onPress={ () => {this.startTimer();} } 
-        disabled={this.state.buttonEnabled ? false : true} />
+          
+          <ProximitySensor/>
            
           </View>
         
@@ -179,6 +178,11 @@ class MapPage extends Component {
 }
 
 export default MapPage;
+
+{/* <Button 
+        title="Begin Journey" 
+        onPress={ () => {this.startTimer();} } 
+        disabled={this.state.buttonEnabled ? false : true} /> */}
 
 const styles = StyleSheet.create({
   linearGradient: {

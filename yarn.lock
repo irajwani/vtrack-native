@@ -432,6 +432,10 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
+"@estimote/react-native-proximity@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@estimote/react-native-proximity/-/react-native-proximity-0.4.1.tgz#462cbeec4b7d4dbe625555fa6e8f8bb008559e1e"
+
 "@firebase/app-types@0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.2.tgz#a92dc544290e2893bd8c02a81e684dae3d8e7c85"

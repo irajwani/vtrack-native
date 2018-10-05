@@ -1,6 +1,9 @@
 PODS:
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.5)
+  - EstimoteBluetoothScanning (0.3.0)
+  - EstimoteProximitySDK (1.2.0):
+    - EstimoteBluetoothScanning (~> 0.2)
   - Folly (2016.09.26.00):
     - boost-for-react-native
     - DoubleConversion
@@ -84,6 +87,7 @@ PODS:
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EstimoteProximitySDK (~> 1.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - Google-Maps-iOS-Utils
@@ -124,6 +128,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: e22e0762848812a87afd67ffda3998d9ef29170c
+  EstimoteBluetoothScanning: eeb6ed4e532220ea10fbff12d5c7f4588c5555af
+  EstimoteProximitySDK: fbd35595b1dd77c0f431942bf7ef683bef28bbea
   Folly: 211775e49d8da0ca658aebc8eab89d642935755c
   glog: 1de0bb937dccdc981596d3b5825ebfb765017ded
   Google-Maps-iOS-Utils: c32891ff472eaaa1fca032beedafa1a013af7875
@@ -133,6 +139,6 @@ SPEC CHECKSUMS:
   react-native-maps: 066c2afcc89e18726377bcc685315f989ca22449
   yoga: a23273df0088bf7f2bb7e5d7b00044ea57a2a54a
 
-PODFILE CHECKSUM: 84be7261142daeaa511bbf320f039f07b32dab37
+PODFILE CHECKSUM: e96083ead50ecb9c942eee0c3d915f50e7afd3e3
 
 COCOAPODS: 1.4.0
