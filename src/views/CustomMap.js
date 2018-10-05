@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Text, Image, TouchableOpacity, StyleSheet, View, Dimensions, Platform } from 'react-native'
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { Marker, AnimatedRegion, Polyline } from "react-native-maps";
+import { Marker, AnimatedRegion, Polyline, Circle } from "react-native-maps";
 import haversine from "haversine";
 import MapViewDirections from 'react-native-maps-directions';
 import firebase from '../cloud/firebase.js';
@@ -14,6 +14,8 @@ const LONGITUDE = 78.07513;
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 //Icons made by SimpleIcon from wwww.flaticon.com is licensed by Creative Commons BY 3.0
+
+const priceZones = [ {latlng: {latitude: 24.773303 , longitude: 67.080164}, intensity: 'high', radius: 1000}, {latlng: { latitude: 24.798792, longitude: 67.048586}, intensity: 'low', radius: 1000} ]
 
 export default class CustomMap extends Component {
   constructor(props) {
@@ -176,7 +178,21 @@ export default class CustomMap extends Component {
               this.marker = marker;
             }}
             coordinate={this.state.coordinate}
+            image={require('../resources/images/you.png')}
           />
+
+          {priceZones.map(
+              priceZone => (
+                <Circle
+                  center={priceZone.latlng}
+                  radius={priceZone.radius}
+                  fillColor={ priceZone.intensity == 'high' ? 'orange' : 'yellow'}
+                  strokeColor={"#031430"}
+                  strokeWidth={1.0}
+                />
+              ) )
+
+            }
             
           
           

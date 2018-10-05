@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Button } from 'react-native-elements';
 
 import * as RNEP from "@estimote/react-native-proximity";
 
@@ -119,9 +120,12 @@ zone2.onChangeAction = contexts => {
   }
   render() {
     const {zoneOne} = this.state;
+
+    //if(zoneOne) has been true for 2 minutes, and the car has also been moving,
+    //notify the company their ad is on the move by updating their respective branch.
     //use state of component to address values from the ground 
     return (
-      <View style={{}}>
+      <View style={{flexDirection: 'row'}}>
           {zoneOne ? <Icon name="access-point" 
                         size={40} 
                         color='blue'
@@ -133,6 +137,39 @@ zone2.onChangeAction = contexts => {
                         onPress={() => {}}
 
               />}
+           {this.props.endJourneyVisible ? 
+            <Button
+              title='End journey' 
+              titleStyle={{ fontWeight: "700" }}
+              buttonStyle={{
+              backgroundColor: 'black',
+              //#2ac40f
+              width: 40,
+              height: 45,
+              borderColor: "#226b13",
+              borderWidth: 0,
+              borderRadius: 30
+              }}
+              containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
+              onPress={this.props.endJourney} />  
+            :
+            <Button
+              title='Begin journey' 
+              titleStyle={{ fontWeight: "700" }}
+              buttonStyle={{
+              backgroundColor: '#368c93',
+              //#2ac40f
+              width: 40,
+              height: 45,
+              borderColor: "#226b13",
+              borderWidth: 0,
+              borderRadius: 30
+              }}
+              containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
+              onPress={this.props.beginJourney}
+              disabled={zoneOne ? false: true}  />  
+           }   
+             
       </View>
     )
   }

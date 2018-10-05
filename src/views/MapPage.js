@@ -114,6 +114,12 @@ class MapPage extends Component {
 
   }
 
+  beginJourney() {
+    //now consistently keep track of users movement, record the duration and distance of their journey
+    //allow user to end journey by setting state
+    this.setState({showEndJourney: true});
+  }
+
   generateDestinations(coords) {
     var destinations = [];
     for(let i = 0; i < coords.length; i++) {
@@ -124,7 +130,7 @@ class MapPage extends Component {
   }
 
   render() {
-    const {isGetting, uid, profile} = this.state;
+    const {isGetting, uid, profile, showEndJourney} = this.state;
     //var destinations = this.generateDestinations(data.coordinates);
 
     if(isGetting) {
@@ -153,7 +159,12 @@ class MapPage extends Component {
             
           </View>
           
-          <ProximitySensor/>
+          <ProximitySensor 
+            beginJourney={() => {this.beginJourney()}} 
+            endJourney={() => {this.endJourney()}} 
+            endJourneyVisible={showEndJourney} 
+          />
+
            
           </View>
         
