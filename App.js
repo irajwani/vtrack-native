@@ -5,19 +5,16 @@
  */
 
 import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import InitialScreen from './src/views/InitialScreen.js'
 
-import {Provider} from 'react-redux'
-import {createStore} from 'redux'
-import reducer from './src/store/reducer.js'
+import SignIn from './src/views/SignIn';
 
-const store = createStore(reducer);
+// import {Provider} from 'react-redux'
+// import {createStore} from 'redux'
+// import reducer from './src/store/reducer.js'
+
+// const store = createStore(reducer);
+
+
 
 export default class App extends Component {
 
@@ -25,9 +22,7 @@ export default class App extends Component {
     console.disableYellowBox = true
     console.log('starting app');
     return (
-      <Provider store={store}>
-          <InitialScreen />
-      </Provider> 
+      <SignIn /> 
     )
   }
 }

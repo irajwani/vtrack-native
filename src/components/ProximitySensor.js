@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Button } from 'react-native-elements';
 
 import * as RNEP from "@estimote/react-native-proximity";
 
-export default class ProximitySensor extends Component {
+class ProximitySensor extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -14,7 +13,7 @@ export default class ProximitySensor extends Component {
           //Putting in constructor works;
         // will trigger when the user is within ~ 5 m of any beacon with tag "lobby"
 // you can add tags to your beacons on https://cloud.estimote.com, in Beacon Settings
-const zone1 = new RNEP.ProximityZone(2, "bed");
+const zone1 = new RNEP.ProximityZone(2, "car");
 zone1.onEnterAction = context => {
   this.setState({zoneOne: true})
   // context properties are:
@@ -48,7 +47,7 @@ zone1.onChangeAction = contexts => {
   console.log("zone1 onChange", contexts);
 };
 
-const zone2 = new RNEP.ProximityZone(2, "table");
+const zone2 = new RNEP.ProximityZone(2, "ad");
 zone2.onEnterAction = context => {
   this.setState({zoneTwo: true})
   console.log("zone2 onEnter", context);
@@ -119,56 +118,29 @@ zone2.onChangeAction = contexts => {
 
   }
   render() {
-    const {zoneOne} = this.state;
+    const {zoneOne, zoneTwo} = this.state;
 
     //if(zoneOne) has been true for 2 minutes, and the car has also been moving,
     //notify the company their ad is on the move by updating their respective branch.
     //use state of component to address values from the ground 
     return (
       <View style={{flexDirection: 'row'}}>
-          {zoneOne ? <Icon name="access-point" 
+          {zoneOne && zoneTwo ? 
+            <Icon name="access-point" 
                         size={40} 
                         color='blue'
                         onPress={() => {}}
 
-              /> : <Icon name="access-point" 
+            /> 
+            : 
+            <Icon name="access-point" 
                         size={40} 
                         color='gray'
                         onPress={() => {}}
 
-              />}
-           {this.props.endJourneyVisible ? 
-            <Button
-              title='End journey' 
-              titleStyle={{ fontWeight: "700" }}
-              buttonStyle={{
-              backgroundColor: 'black',
-              //#2ac40f
-              width: 40,
-              height: 45,
-              borderColor: "#226b13",
-              borderWidth: 0,
-              borderRadius: 30
-              }}
-              containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
-              onPress={this.props.endJourney} />  
-            :
-            <Button
-              title='Begin journey' 
-              titleStyle={{ fontWeight: "700" }}
-              buttonStyle={{
-              backgroundColor: '#368c93',
-              //#2ac40f
-              width: 40,
-              height: 45,
-              borderColor: "#226b13",
-              borderWidth: 0,
-              borderRadius: 30
-              }}
-              containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
-              onPress={this.props.beginJourney}
-              disabled={zoneOne ? false: true}  />  
-           }   
+            />
+          }
+             
              
       </View>
     )

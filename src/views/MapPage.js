@@ -4,8 +4,6 @@ import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase.js';
 import CustomMap from './CustomMap.js';
 import { database } from '../cloud/database.js';
-import ProximitySensor from '../components/ProximitySensor.js';
-
 const glu = require('../components/geolocation-utils.js');
 
 const {width} = Dimensions.get('window');
@@ -31,6 +29,17 @@ class MapPage extends Component {
 
   }
 
+ 	componentWillMount() {
+    
+    setTimeout(() => {
+      const uid = firebase.auth().currentUser.uid;
+      console.log(uid);
+      this.getDriversProfile(uid);
+    }, 1000);
+   
+		
+  }
+
   getDriversProfile(uid) {
     database.then( (d) => {
       console.log(d);
@@ -40,16 +49,6 @@ class MapPage extends Component {
     })
     .then( () => { this.setState( {isGetting: false} );  } )
     .catch( (err) => {console.log(err) })
-  }
-
- 	componentWillMount() {
-    
-		//0. get initial time
-   const uid = firebase.auth().currentUser.uid
-   this.getDriversProfile(uid);
-    
-      //In this case, simply increment the clock every 30 seconds
-		
   }
 
   diff_minutes(dt2, dt1) {
@@ -114,12 +113,6 @@ class MapPage extends Component {
 
   }
 
-  beginJourney() {
-    //now consistently keep track of users movement, record the duration and distance of their journey
-    //allow user to end journey by setting state
-    this.setState({showEndJourney: true});
-  }
-
   generateDestinations(coords) {
     var destinations = [];
     for(let i = 0; i < coords.length; i++) {
@@ -130,7 +123,7 @@ class MapPage extends Component {
   }
 
   render() {
-    const {isGetting, uid, profile, showEndJourney} = this.state;
+    const {isGetting, profile,} = this.state;
     //var destinations = this.generateDestinations(data.coordinates);
 
     if(isGetting) {
@@ -159,14 +152,9 @@ class MapPage extends Component {
             
           </View>
           
-          <ProximitySensor 
-            beginJourney={() => {this.beginJourney()}} 
-            endJourney={() => {this.endJourney()}} 
-            endJourneyVisible={showEndJourney} 
-          />
 
            
-          </View>
+        </View>
         
 
         

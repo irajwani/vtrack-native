@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Text, Image, TouchableHighlight, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
-import {connect} from 'react-redux';
 
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -14,7 +13,9 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
+import MapPageAndDashboardTab from '../tabNavigators/mapPageAndDashboardTab';
 import { EditProfileToCameraStack } from '../stackNavigators/editProfileToCameraStack.js';
+
 
 const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
 
@@ -40,7 +41,7 @@ class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { products: [], email: '', uid: '', pass: '',};
+      this.state = { products: [], email: '', uid: '', pass: '', loggedIn: false,};
       }
 
     //   componentWillMount() {
@@ -84,11 +85,11 @@ class SignIn extends Component {
         this.setState({ error: '', loading: true });
         const { email, pass } = this.state; //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
-            .then(() => { this.setState({ error: '', loading: false });
-                          //this.authChangeListener();
-                          //cant do these things:
-                          //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
+            .then(() => { firebase.auth().onAuthStateChanged( (user) => {
+                            user ? this.setState({loggedIn: true,}) : alert('error logging in')
                           })
+                        }
+                )
             .catch( () => {
                 this.setState( {error: 'Authentication failed, please sign up or enter correct credentials.', loading: false } );
                 alert(this.state.error);
@@ -260,32 +261,13 @@ class SignIn extends Component {
     //////////////////
 
     render() {
-        const {editProfile} = this.props;
-        
-        if(editProfile) {
-            return ( <EditProfileToCameraStack/> )
+        const {loggedIn} = this.state;
+
+        if(loggedIn) {
+            return <MapPageAndDashboardTab/>
         }
-    //     var promise = new Promise(function(resolve, reject) {
-    //     var snapshot;
-    //     snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
-
-    //     if (snapshot) {
-    //       resolve("Stuff worked!");
-    //     }
-    //     else {
-    //       reject(Error("It broke"));
-    //     }
-    //   });
-    //   var snapshot;
-    //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
-    //   //snapshot.then( result => return console.log(result.val().name) );
-    //   console.log(snapshot);
-
-        //  {
-        //   console.log(this.state.uid); 
-        //   return ( <ProfilePage uid={this.state.uid} /> ) 
-        //  }
-    return (
+    
+        return (
             
           <KeyboardAvoidingView behavior='padding'
           style={styles.signInContainer}>
@@ -344,7 +326,7 @@ class SignIn extends Component {
                         borderRadius: 5,
                         
                         }}
-                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />
+                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} onPress={() => {this.onSignInPress()} } />
                     <Button
                         title='Sign Up' 
                         titleStyle={{ fontWeight: "700" }}
@@ -440,22 +422,6 @@ class SignIn extends Component {
 }
 
 // this feeds the singular store whenever the state changes
-const mapStateToProps = (state) => {
-    return {
-        showSignIn: state.showSignIn,
-        loading: state.loading,
-        loggedIn: state.loggedIn,
-        editProfile: state.editProfile
-    }
-}
 
-//if we want a component to access the store, we need to map actions to the props
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
-        onSignUpPress: (email, pass) => dispatch( {type: 'onSignUpPress', email: email, pass: pass } ),
-        //onSignInLoading: () => dispatch( {type: 'onSignInLoading'} )
-    }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
+export default SignIn

@@ -32,7 +32,7 @@ class InitialScreen extends Component {
     if (showSignIn){
         return <SignIn />
     } 
-    //TODO: For some reason, showSignIn is true already
+    
     return <SignInOrSignUp/>
     
 
@@ -60,4 +60,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InitialScreen)
+//export default connect(mapStateToProps, mapDispatchToProps)(InitialScreen)
